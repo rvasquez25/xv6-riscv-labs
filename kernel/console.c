@@ -150,7 +150,7 @@ consoleintr(int c)
     break;
   case C('H'): // Backspace
   case '\x7f':
-    if(cons.e != cons.w){
+   if(cons.e != cons.w){
       cons.e--;
       consputc(BACKSPACE);
     }

@@ -267,7 +267,7 @@ growproc(int n)
   return 0;
 }
 
-// Create a new process, copying the parent.
+// Create a new process, copying theGparent.
 // Sets up child kernel stack to return as if from fork() system call.
 int
 fork(void)
@@ -654,3 +654,56 @@ procdump(void)
     printf("\n");
   }
 }
+
+int
+procinfo(uint64 addr)
+{
+	struct proc *p = myproc();
+	struct proc *userproc;
+	int counter = 0;
+	//initialize user process structure
+	struct uproc {
+		int pid;
+		enum procstate st;
+		uint64 sz;
+		int ppid;
+		char name[16];
+	};
+	struct uproc newproc;
+	struct uproc size;
+
+	/*static char *states[] = {
+		[UNUSED]	"unused",
+		[SLEEPING]	"sleep ",
+		[RUNNABLE]	"runble",
+		[RUNNING]	"run   ",
+		[ZOMBIE]	"zombie",
+	};*/
+
+	//Loop through current user processes
+	for (userproc = proc; userproc < &proc[NPROC]; userproc++)
+	{
+		//Check for unused states
+		if (userproc->state == UNUSED)
+			continue;
+		else
+			counter++;
+		//copy process data for userproc from kernel
+		newproc.pid = userproc->pid;
+		newproc.st = userproc ->state;
+		newproc.sz = userproc->sz;	
+		if(userproc -> parent) 
+			newproc.ppid = userproc-> parent->pid;
+		else 
+			newproc.ppid = 0;
+		for (int i = 0; i < 16; i++) {
+			newproc.name[i] = userproc->name[i];
+		}
+		//copyout function to user pagetable
+		copyout(p->pagetable, addr, (char *)&newproc, sizeof(size));
+		addr += sizeof(size);
+	}
+	//number of processes
+	return counter;
+}
+
