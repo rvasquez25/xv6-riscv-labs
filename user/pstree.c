@@ -1,30 +1,46 @@
 #include "kernel/param.h"
 #include "kernel/types.h"
-#include "user/uproc.h"
+#include "kernel/pstat.h"
 #include "user/user.h"
 
-struct uproc uproc[NPROC];
+struct pstat uproc[NPROC];
 int nprocs;
 
-// helper function to output the process tree rooted at pid
-// calls itself recursively on any children on pid
 void mktree(int indent, int pid)
 {
-	return;
+  int found = 0;
+  int i = 0;
+
+  while (!found && i<nprocs) {
+    if (uproc[i].pid == pid)
+      found = 1;
+    else
+      i++;
+  }
+  if (!found) {
+    printf("pid %d not found\n", pid);
+    return;
+  }
+  for (int j=0; j<indent; j++)
+    printf("  ");
+  printf("%s(%d)\n", uproc[i].name, uproc[i].pid);
+  for (i=0; i<nprocs; i++)
+    if (uproc[i].ppid == pid) {
+      mktree(indent+1, uproc[i].pid);
+    }
+  return;
 }
+
 int
 main(int argc, char **argv)
 {
-	int pid = 1;
-	if (argc ==2)
-		pid = atoi(argv[1]);
-	nprocs = getprocs(uproc);
-	if (nprocs < 0)
-		exit(-1);
+  int pid = 1;
 
-	// You can remove the following print statement
-	printf("%d processes\n", nprocs);
-
-	mktree(0, pid);
-	exit(0);
+  if (argc == 2)
+    pid = atoi(argv[1]);
+  nprocs = getprocs(uproc);
+  if (nprocs < 0)
+    exit(-1);
+  mktree(0, pid);
+  exit(0);
 }

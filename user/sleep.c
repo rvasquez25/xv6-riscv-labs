@@ -1,14 +1,13 @@
 #include "kernel/types.h"
-#include "kernel/stat.h"
 #include "user/user.h"
 
-int main(int argc, char *argv[]) {
-	int counter;
-	counter = atoi(argv[1]);
-	if (argv[1]) {
-		sleep(counter);
-		exit(0);
-	}
-	printf("Please add an argument\n");
-	exit(0);
+int
+main(int argc, char **argv)
+{
+  if(argc != 2){
+    fprintf(2, "usage: sleep ticks\n");
+    exit(1);
+  }
+  sleep(atoi(argv[1]));
+  exit(0);
 }

@@ -1,9 +1,10 @@
-enum uprocstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum uprocstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING };
 
 struct uproc {
-	int pid;	//Process ID
-	enum uprocstate state;	//Process state
-	uint64 size;	//Size of process memory (bytes)
-	int ppid;	//Parent ID
-	char name[16];	// Process command name
+	int pid;
+	enum uprocstate state;
+	uint64 size;
+	int ppid;
+	uint cputime;
+	char name[16];
 };
