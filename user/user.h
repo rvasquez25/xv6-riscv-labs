@@ -28,6 +28,10 @@ int sleep(int);
 int uptime(void);
 int getprocs(struct pstat*);
 int freepmem(void);
+int sem_init(int, int);
+int sem_destroy(int);
+int sem_wait(int, int);
+int sem_post(int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);
