@@ -67,7 +67,43 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
-  } else {
+  } 
+  
+  else if(r_scause() ==13 || r_scause() ==15){
+
+    uint64 fAddress = r_stval();
+
+    int i;
+    for(i = 0; i<MAX_MMR; i++){
+	if((p->mmr[i].valid) && (fAddress >= p->mmr[i].addr) && fAddress < (p->mmr[i].addr + p->mmr[i].length)){
+
+	  if (r_scause() == 13){
+            if (!(p->mmr[i].prot & PTE_R))
+              p->killed=1;
+            else{
+            uint64 physAddr = (uint64)kalloc();
+            uint64 startAddr = PGROUNDDOWN(fAddress);
+            mappages(p->pagetable,startAddr,PGSIZE,physAddr,p->mmr[i].prot | PTE_U);
+            }
+        }
+        
+         if(r_scause() == 15){
+	    if (!(p->mmr[i].prot & PTE_W))
+	      p->killed=1;
+            else{
+            uint64 physAddr = (uint64)kalloc();
+            uint64 startAddr = PGROUNDDOWN(fAddress);
+            mappages(p->pagetable,startAddr,PGSIZE,physAddr,p->mmr[i].prot | PTE_U);
+            }
+        }
+        
+        break;
+	}
+     }
+        if (i==MAX_MMR)
+          p->killed=1;
+}
+  else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
@@ -77,11 +113,8 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2) {
-    p->cputime +=1;
-    
+  if(which_dev == 2)
     yield();
-  }
 
   usertrapret();
 }
@@ -140,7 +173,6 @@ kerneltrap()
   uint64 sepc = r_sepc();
   uint64 sstatus = r_sstatus();
   uint64 scause = r_scause();
-  struct proc *p = myproc();
   
   if((sstatus & SSTATUS_SPP) == 0)
     panic("kerneltrap: not from supervisor mode");
@@ -154,10 +186,8 @@ kerneltrap()
   }
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING) {
-   	  p->cputime +=1;
-	  yield();
-  }
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
+    yield();
 
   // the yield() may have caused some traps to occur,
   // so restore trap registers for use by kernelvec.S's sepc instruction.
