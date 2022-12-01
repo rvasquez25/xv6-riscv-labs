@@ -20,8 +20,9 @@ buffer_t *buffer;
 void producer()
 {
     while(1) {
-        if (buffer->num_produced >= MAX)
+        if (buffer->num_produced >= MAX) {
 	    return;
+	}
 	buffer->num_produced++;
 	buffer->buf[buffer->nextin++] = buffer->num_produced;
 	buffer->nextin %= BSIZE;
@@ -42,10 +43,11 @@ void consumer()
 int
 main(int argc, char *argv[])
 {
-    buffer = (buffer_t *) mmap(NULL, sizeof(buffer_t),
-		               PROT_READ | PROT_WRITE,
-			       MAP_ANONYMOUS | MAP_PRIVATE,
-			       -1, 0);
+    buffer = (buffer_t *) mmap(NULL, sizeof(buffer_t), 
+		    PROT_READ | PROT_WRITE, 
+		    MAP_ANONYMOUS | MAP_PRIVATE, 
+		    -1, 0);
+
     buffer->nextin = 0;
     buffer->nextout = 0;
     buffer->num_produced = 0;
@@ -57,7 +59,7 @@ main(int argc, char *argv[])
 
     printf("total = %d\n", buffer->total);
 
-    //munmap(buffer, sizeof(buffer_t));
+   // munmap(buffer, sizeof(buffer_t));
 
     exit(0);
 }

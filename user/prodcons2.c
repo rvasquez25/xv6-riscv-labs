@@ -50,14 +50,18 @@ int main(int argc, char *argv[])
     buffer->num_produced = 0;
     buffer->num_consumed = 0;
     buffer->total = 0;
-    if (!fork())
+    if (!fork()) {
         producer();
-    else
+    }
+    else {
 	wait(0);
-    if (!fork())
+    }
+    if (!fork()) {
         consumer();
-    else
+    }
+    else {
 	wait(0);
+    }
     printf("total = %d\n", buffer->total);
     exit(0);
 }   
