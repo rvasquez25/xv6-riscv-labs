@@ -813,4 +813,3 @@ alloc_mmr_listid() {
   release(&listid_lock);
   return(listid);
 }
-

@@ -17,7 +17,7 @@ struct semaphore {
 //OS semaphore table type
 struct semtab {
 	struct spinlock lock;
-	struct sempahore sem[NSEM];
+	struct semaphore sem[100]; // maximum open semaphore per system
 };
 
 extern struct semtab semtable;
